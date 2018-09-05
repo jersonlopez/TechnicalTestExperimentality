@@ -1,22 +1,26 @@
 'use strict'
 
-let { saveQuote, deleteQuote } = require('../domain/services/serviceGenerateQuote');
-let { getImage } = require('../externalServices/getImage');
-let { getQuote } = require('../externalServices/getQuote')
+let { saveQuote, deleteQuote, getQuotes } = require('../domain/services/serviceGenerateQuote');
 
 let save = async (req, res) => {
-    let data = {}
-    data.quote = await getQuote();
-    data.image = await getImage("hola");
-    res.send(await saveQuote(data));
+    let result = await saveQuote()
+
+    if(result.error !== undefined) res.status(500).send(result.error);
+
+    res.send(result);
 }
 
 let remove = async (req, res) => {
     let data = req.params;
-    res.send(deleteQuote(data))
+    res.send(await deleteQuote(data))
+}
+
+let get = async (req, res) => {
+    res.send(await getQuotes())
 }
 
 module.exports = {
     save,
-    remove
+    remove,
+    get
 }

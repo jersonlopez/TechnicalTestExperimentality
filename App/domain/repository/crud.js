@@ -37,5 +37,6 @@ let find = (object, filter, projection) => {
 module.exports = {
     save,
     remove,
-    update
+    update, 
+    find
 }

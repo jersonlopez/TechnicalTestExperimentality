@@ -3,8 +3,7 @@
 const Router = require('express').Router
 let router = new Router()
 
-let { save, remove } = require('../request/requestQuote')
-let { getQuote } = require('../externalServices/getQuote')
+let { save, remove, get } = require('../request/requestQuote')
 
 
 router.route('/generate-changing-life-quote')
@@ -13,7 +12,7 @@ router.route('/generate-changing-life-quote')
 })
 
 router.route('/generate-changing-life-quote/:id')
-.delete((...args) => {
+.get((...args) => {
   remove(...args)
 })
 
@@ -22,18 +21,9 @@ router.route('/ping')
   res.send("pong")
 })
 
-router.route('/image/:data')
-.get(async (req, res) => {
-    let result = await getImage(req.params.data)
-    res.send(result)
-
-})
-
-router.route('/quote/')
-.get(async (req, res) => {
-    let result = await getQuote()
-    res.send(result)
-
+router.route('/quotes/')
+.get((...args) => {
+    get(...args)
 })
 
 module.exports = router

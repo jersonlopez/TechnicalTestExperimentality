@@ -1,14 +1,23 @@
 'use strict'
 
-let { save, remove, update } = require('../repository/crud');
+let { save, remove, update, find } = require('../repository/crud');
 const { quote } = require('../entities/quote');
+let { getImage } = require('../../externalServices/getImage');
+let { getQuote } = require('../../externalServices/getQuote')
 
 
-let saveQuote = async (req) => {
+let saveQuote = async () => {
+    let quotes = await getQuote();    
+    let images = await getImage(quotes);
+
+    if (quotes.error !== undefined || images.error !== undefined) {
+        return { error :`An error has occurred generating the quote` };
+    }
+    
     let newQuote = new quote({
         id : "",
-        quote : req.quote,
-        image : req.image
+        quote : quotes,
+        image : images
     })
 
     let result = await save(newQuote);
@@ -17,19 +26,27 @@ let saveQuote = async (req) => {
     let set = { $set: { id: result._id } }
     update(quote ,filter, set)
 
-    return { "message": "quote successful" }
+    let projection = '-_id -__v'
+    let search = await find(quote, filter, projection);
+
+    return { "message": "quote generated successfully", "quote": search }
 };
 
 let deleteQuote = async (req) => {
-
     let filter = { id: req.id }
     await remove(quote, filter)
 
-    return { "message": "usuario eliminado correctamente" }
+    return { "message": "quote deleted successfully" }
 };
+
+let getQuotes = async () => {
+    let projection = '-_id -__v'
+    return await find(quote, {}, projection);
+}
 
 
 module.exports = {
     saveQuote,
-    deleteQuote
+    deleteQuote,
+    getQuotes
 }
